@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private var targeting = false
     private var resultShown = false
     private var lastFrameAt = 0L
+    private var hintOverride: String? = null
 
     private val gameLoop = object : Runnable {
         override fun run() {
@@ -86,7 +87,8 @@ class MainActivity : AppCompatActivity() {
             }
             targeting = true
             mapView.targeting = true
-            tvHint.text = "Выберите соседнюю планету — туда уйдёт 70% флота"
+            hintOverride = "Тапните соседнюю планету — весь флот из орбиты уйдёт туда"
+            tvHint.text = hintOverride
             mapView.invalidate()
         }
 
@@ -106,6 +108,7 @@ class MainActivity : AppCompatActivity() {
                 toast("Флот вылетел")
                 targeting = false
                 mapView.targeting = false
+                hintOverride = null
                 tvHint.text = "Флот в пути — 8 секунд до орбиты"
             } else {
                 toast("Нужна соседняя планета и флот в орбите")
@@ -113,6 +116,23 @@ class MainActivity : AppCompatActivity() {
             refreshHud()
             return
         }
+        val from = selected
+        val fromPlanet = if (from in engine.planets.indices) engine.planets[from] else null
+        if (from >= 0 && from != id && fromPlanet != null &&
+            fromPlanet.owner == PLAYER && engine.orbit[from][PLAYER] >= 1f
+        ) {
+            if (engine.sendFleet(from, id)) {
+                toast("Флот ${'$'}{engine.orbit[from][PLAYER].toInt()} → планета ${'$'}{id + 1}")
+                selected = id
+                mapView.selected = id
+                refreshHud()
+                mapView.invalidate()
+                return
+            } else {
+                toast("Эта планета не соседняя — нужна соединённая линией")
+            }
+        }
+
         selected = id
         mapView.selected = id
         refreshHud()
@@ -180,7 +200,9 @@ class MainActivity : AppCompatActivity() {
         btnBuild.isEnabled = engine.canBuild(p.id)
         btnAttack.isEnabled = p.owner == PLAYER && engine.orbit[p.id][PLAYER] >= 1f
 
-        if (engine.events.isNotEmpty()) {
+        if (hintOverride != null) {
+            tvHint.text = hintOverride
+        } else if (engine.events.isNotEmpty()) {
             tvHint.text = engine.events.last()
         }
     }

@@ -105,6 +105,15 @@ class MapView @JvmOverloads constructor(
             }
         }
 
+        // arrows from your selected planet to its neighbours (where the fleet can go)
+        val sel = e.planets.getOrNull(selected)
+        if (!targeting && sel != null && sel.owner == PLAYER && e.orbit[sel.id][PLAYER] > 0.5f) {
+            for (l in sel.links) {
+                val q = e.planets[l]
+                arrow(canvas, px(sel.x), py(sel.y), px(q.x), py(q.y), 0xAA22C55E.toInt())
+            }
+        }
+
         // highlighted neighbours while targeting
         if (targeting && selected in e.planets.indices) {
             line.color = 0xCC38BDF8.toInt()
@@ -122,6 +131,33 @@ class MapView @JvmOverloads constructor(
 
         // planets
         for (p in e.planets) drawPlanet(canvas, e, p)
+    }
+
+    private fun arrow(canvas: Canvas, x1: Float, y1: Float, x2: Float, y2: Float, color: Int) {
+        val dx = x2 - x1
+        val dy = y2 - y1
+        val len = hypot(dx, dy)
+        if (len < 1f) return
+        val ux = dx / len
+        val uy = dy / len
+        val sx = x1 + ux * (planetR + 6 * d)
+        val sy = y1 + uy * (planetR + 6 * d)
+        val ex = x2 - ux * (planetR + 9 * d)
+        val ey = y2 - uy * (planetR + 9 * d)
+
+        line.color = color
+        line.strokeWidth = 3f * d
+        canvas.drawLine(sx, sy, ex, ey, line)
+
+        fill.style = Paint.Style.FILL
+        fill.color = color
+        val head = 11f * d
+        path.reset()
+        path.moveTo(ex, ey)
+        path.lineTo(ex - ux * head - uy * head * 0.6f, ey - uy * head + ux * head * 0.6f)
+        path.lineTo(ex - ux * head + uy * head * 0.6f, ey - uy * head - ux * head * 0.6f)
+        path.close()
+        canvas.drawPath(path, fill)
     }
 
     private fun drawPlanet(canvas: Canvas, e: GameEngine, p: Planet) {

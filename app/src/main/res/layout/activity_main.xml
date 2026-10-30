@@ -146,7 +146,7 @@
                         android:layout_height="48dp"
                         android:layout_marginEnd="5dp"
                         android:layout_weight="1"
-                        android:text="Флот +10"
+                        android:text="Флот +10 · 50"
                         android:textSize="13sp"
                         app:cornerRadius="15dp" />
 
@@ -156,7 +156,7 @@
                         android:layout_height="48dp"
                         android:layout_marginStart="5dp"
                         android:layout_weight="1"
-                        android:text="Атаковать"
+                        android:text="Атаковать →"
                         android:textSize="13sp"
                         app:backgroundTint="@color/surface_2"
                         app:cornerRadius="15dp"
@@ -169,7 +169,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="Стройте флот на своей планете, затем атакуйте соседнюю"
+                    android:text="Своя планета с флотом → тап по соседней = атака"
                     android:textColor="@color/text_secondary"
                     android:textSize="11sp" />
             </LinearLayout>
