@@ -23,7 +23,7 @@ class GameEngine(seed: Long, private val planetCount: Int = 20) {
     val credits = floatArrayOf(200f, 200f)
     var time = 0f
     var winner = -1
-    var botTimer = 3f
+    var botTimer = 10f
     val events = ArrayDeque<String>()
 
     init {
@@ -162,9 +162,9 @@ class GameEngine(seed: Long, private val planetCount: Int = 20) {
     private fun bot(dt: Float) {
         botTimer -= dt
         if (botTimer > 0f) return
-        botTimer = 2.5f
+        botTimer = 3.5f
 
-        if (credits[BOT] >= FLEET_COST * 1.4f) {
+        if (credits[BOT] >= FLEET_COST * 1.6f) {
             val owned = planets.filter { it.owner == BOT }
             if (owned.isNotEmpty()) {
                 val frontier = owned.maxByOrNull { p -> p.links.count { planets[it].owner != BOT } }
@@ -186,8 +186,8 @@ class GameEngine(seed: Long, private val planetCount: Int = 20) {
                 ?: continue
 
             val defence = target.garrison + (if (target.owner >= 0) orbit[target.id][target.owner] else 0f)
-            if (power >= defence * 1.3f || target.garrison < 8f) {
-                val sent = power * 0.75f
+            if (power >= defence * 1.45f || target.garrison < 8f) {
+                val sent = power * 0.7f
                 orbit[p.id][BOT] -= sent
                 fleets.add(Fleet(BOT, sent, p.id, target.id, time, time + HOP_SECONDS))
             }
