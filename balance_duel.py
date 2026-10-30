@@ -74,8 +74,8 @@ def run(seed, seconds=600):
             attacker = orbit[p.id][enemy]
             own = orbit[p.id][p.owner] if p.owner >= 0 else 0.0
             defender = p.garrison + own
-            att_loss = min(attacker, defender * 0.5 * dt)
-            def_loss = attacker * 0.8 * dt * vuln
+            att_loss = min(attacker, defender * 0.35 * dt)
+            def_loss = attacker * 1.0 * dt * vuln
             orbit[p.id][enemy] = max(0.0, attacker - att_loss)
             rem = def_loss
             if p.owner >= 0 and orbit[p.id][p.owner] > 0:
@@ -118,7 +118,7 @@ def run(seed, seconds=600):
                 tgt = min(cands, key=lambda q: q.garrison + (orbit[q.id][q.owner] if q.owner >= 0 else 0))
                 defence = tgt.garrison + (orbit[tgt.id][tgt.owner] if tgt.owner >= 0 else 0)
                 if pw >= defence * 1.45 or tgt.garrison < 8:
-                    sent = pw * 0.7
+                    sent = pw
                     orbit[p.id][me] -= sent
                     fleets.append((me, sent, tgt.id, t + HOP))
 

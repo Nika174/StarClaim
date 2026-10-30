@@ -92,6 +92,7 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnRestart).setOnClickListener { restart() }
 
+        maybeShowHelp()
         startLoop()
     }
 
@@ -116,6 +117,24 @@ class MainActivity : AppCompatActivity() {
         mapView.selected = id
         refreshHud()
         mapView.invalidate()
+    }
+
+    private fun maybeShowHelp() {
+        val prefs = getSharedPreferences("starclaim", MODE_PRIVATE)
+        if (prefs.getBoolean("help_shown", false)) return
+        prefs.edit().putBoolean("help_shown", true).apply()
+        AlertDialog.Builder(this)
+            .setTitle("Как захватить планету")
+            .setMessage(
+                "1. Тапните свою зелёную планету\n" +
+                "2. Несколько раз нажмите «Флот +10» — флот копится в ОРБИТЕ планеты (10 флота = 50 очков)\n" +
+                "3. «Атаковать» → тапните соседнюю планету (подсвечены голубым). Улетает ВЕСЬ флот из орбиты\n" +
+                "4. Один пакет (10) ничего не сделает: против гарнизона 30 нужно ≈40 флота\n" +
+                "5. Когда гарнизон станет 0, вокруг планеты растёт кольцо захвата — до 100%\n" +
+                "6. Победа: 12 планет из 20"
+            )
+            .setPositiveButton("Понятно", null)
+            .show()
     }
 
     private fun startLoop() {
@@ -153,6 +172,9 @@ class MainActivity : AppCompatActivity() {
         if (enemy > 0.5f) parts.add("вражеский флот ${enemy.toInt()}")
         if (p.capture > 0.5f) parts.add("захват ${p.capture.toInt()}%")
         if (engine.time < p.vulnerableUntil) parts.add("уязвима")
+        if (p.owner != PLAYER) {
+            parts.add("нужно ≈ ${engine.fleetNeeded(p.id).toInt()}")
+        }
         tvSelInfo.text = parts.joinToString(" · ")
 
         btnBuild.isEnabled = engine.canBuild(p.id)

@@ -91,8 +91,8 @@ class GameEngine(seed: Long, private val planetCount: Int = 20) {
             val defender = p.garrison + ownOrbit
 
             // attacker loses to defensive fire, defender loses to bombardment
-            val attLoss = min(attacker, defender * 0.5f * dt)
-            val defLoss = attacker * 0.8f * dt * vulnerable
+            val attLoss = min(attacker, defender * 0.35f * dt)
+            val defLoss = attacker * 1.0f * dt * vulnerable
 
             orbit[p.id][enemyOwner] = (attacker - attLoss).coerceAtLeast(0f)
 
@@ -147,10 +147,17 @@ class GameEngine(seed: Long, private val planetCount: Int = 20) {
             planets[from].links.contains(to) &&
             orbit[from][PLAYER] >= 1f
 
-    /** Sends 70% of the fleet parked at [from] towards the neighbouring [to]. */
+    /** How much fleet you need to break this planet's defence and hold the orbit. */
+    fun fleetNeeded(planetId: Int): Float {
+        val p = planets.getOrNull(planetId) ?: return 0f
+        val own = if (p.owner >= 0) orbit[p.id][p.owner] else 0f
+        return (p.garrison + own) * 1.25f + 8f
+    }
+
+    /** Sends the whole fleet parked at [from] towards the neighbouring [to]. */
     fun sendFleet(from: Int, to: Int): Boolean {
         if (!canSend(from, to)) return false
-        val power = orbit[from][PLAYER] * 0.7f
+        val power = orbit[from][PLAYER]
         if (power < 1f) return false
         orbit[from][PLAYER] -= power
         fleets.add(Fleet(PLAYER, power, from, to, time, time + HOP_SECONDS))
