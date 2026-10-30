@@ -77,12 +77,18 @@ class MainActivity : AppCompatActivity() {
 
         btnAttack.setOnClickListener {
             val p = selectedPlanet()
-            if (p == null || p.owner != PLAYER) {
-                toast("Сначала выберите свою планету")
+            if (p == null) {
+                toast("Сначала тапните свою планету")
+                return@setOnClickListener
+            }
+            if (p.owner != PLAYER) {
+                toast("Это не ваша планета — выберите зелёную")
                 return@setOnClickListener
             }
             if (engine.orbit[p.id][PLAYER] < 1f) {
-                toast("В орбите нет флота — постройте его")
+                hintOverride = "В орбите 0 флота. Нажмите «Флот +10 · 50» (нужно 2–4 раза)"
+                toast("Сначала накопите флот кнопкой «Флот +10 · 50»")
+                refreshHud()
                 return@setOnClickListener
             }
             targeting = true
@@ -198,7 +204,12 @@ class MainActivity : AppCompatActivity() {
         tvSelInfo.text = parts.joinToString(" · ")
 
         btnBuild.isEnabled = engine.canBuild(p.id)
-        btnAttack.isEnabled = p.owner == PLAYER && engine.orbit[p.id][PLAYER] >= 1f
+        btnAttack.isEnabled = true
+        btnAttack.text = if (p.owner == PLAYER) {
+            "Атаковать → ${engine.orbit[p.id][PLAYER].toInt()}"
+        } else {
+            "Атаковать →"
+        }
 
         if (hintOverride != null) {
             tvHint.text = hintOverride
